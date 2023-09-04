@@ -4,7 +4,8 @@ const controller = require('../controllers/theatre.controller')
 
 theatreRouter.get('/', controller.getAllTheatre)
 theatreRouter.get('/:theatreId',controller.getTheatreById);
-theatreRouter.get('/theatre-movies/:theatreId', controller.getTheatreMoviesById);
+theatreRouter.get('/:location',controller.getTheatreByUserLocation);
+theatreRouter.get('/movieTime/:movieId',controller.getTheatreListByMovieId);
 
 
 theatreRouter.post('/',controller.createTheatre);

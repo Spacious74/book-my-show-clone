@@ -31,7 +31,26 @@ const movieSchema = new mongoose.Schema({
     rating : {
         type : String,
     },
-    posterImage : String,
+    posterImage : {
+            public_id : {
+                type : String,
+                required : true
+            },
+            url : {
+                type : String,
+                required : true
+            }
+        },
+    backImage : {
+            public_id : {
+                type : String,
+                required : true
+            },
+            url : {
+                type : String,
+                required : true
+            }
+        },
     videoTrailer : String,
     createdAt : {
         type : Date,

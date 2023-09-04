@@ -5,26 +5,23 @@ const theatreSchema = new mongoose.Schema({
         type : String,
         required : true,
     },
-    location : {
-        type : String,
-    },
-    description : {
-        type : String,
-    },
-    pincode : {
-        type : Number,
-        required : true
-    },
-    movies : [
-        {
-            movieId : {
-                type : mongoose.Schema.ObjectId,
-                ref : "Movies",
-                required : true
-            },
-            movieName : String,
+    facilities : [], // food and beaverages, mticket, prime seats, etc...
+    address : {
+        location : {
+            type : String,
+        },
+        pincode : {
+            type : Number,
+            required : true
+        },
+        city : {
+            type : String
         }
-    ],
+    },
+    seatArrangement : {
+        rows : Number,
+        cols : Number
+    },
     createdAt : {
         type : Date,
         immutable : true,

@@ -1,7 +1,9 @@
 const Movie = require('../models/Movies')
+// const multer = require('multer');
+// // const storage = multer.memoryStorage();
+// const upload = multer();
 
 const validateMovie = async (req,res, next)=>{
-
 
     const moviebody = req.body;
     if(!moviebody.name || !moviebody.desc || !moviebody.genre || !moviebody.releaseDate
@@ -21,7 +23,6 @@ const validateMovie = async (req,res, next)=>{
         })
         return;
     }
-
     next();
 
 }

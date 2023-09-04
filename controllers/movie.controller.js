@@ -3,14 +3,32 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 const Movie = require('../models/Movies');
+const cloudinary = require('cloudinary').v2;
 
 const getAllMovies = async (req, res) => {
 
+    const searchText = req.query.searchText;
+    const genre = req.query.genre;
+    const language = req.query.lan;
+
     try {
-        const movies = await Movie.find();
-        res.status(200).send({
-            movies
-        });
+
+        let query = {};
+
+        if(searchText && searchText !== ""){
+            query = { name: { $regex: searchText, $options: 'i' } }
+        }
+
+        if(genre && genre !== ""){
+            query = { genre: { $regex: genre, $options: 'i' } }
+        }
+
+        if(language && language !== ""){
+            query = { language: { $regex: language, $options: 'i' } }
+        }
+
+        const movies = await Movie.find(query).sort({ createdAt: -1 }).exec();
+        res.status(200).send(movies);
     } catch (error) {
         res.staus(400).send({
             message : "Error : " + error.message
@@ -24,9 +42,7 @@ const getMovieById = async (req, res) => {
     const id = req.params.movieId;
     try {
         const movie = await Movie.findOne({_id: id});
-        res.status(200).send({
-            movie
-        });
+        res.status(200).send(movie);
     } catch (error) {
         res.status(400).send({
             message : "Error : " + error.message
@@ -49,20 +65,56 @@ const getMovieByGenres = async (req, res) => {
     }
 }
 
+
+const customUpload = async (file) => {
+
+    try{
+        const result = await cloudinary.uploader.upload(file, {folder : "Movie"});
+        return result;
+    }catch(err){
+        console.log("Error in custom upload file : ", err.message);
+    }
+
+}
+
+
 const createMovie = async (req, res) => {
 
     const movie = req.body
+
+    const imagesArr = [movie.posterImage, movie.backImage]
+    
+    const imagesUrl = [];
+
+    try{
+        await Promise.all(imagesArr.map(async (image)=>{
+            let result = await customUpload(image);
+            let obj = {
+                public_id : result.public_id,
+                url : result.url
+            }
+            imagesUrl.push(obj);
+        }))
+    }catch(err){
+        console.log("Error in uploading files : " + err.message);
+    }
+
+    let castArr = movie.cast.split(",");
+    let languageArr = movie.language.split(",");
+
     try {
         const movieCreation = await Movie.create({
             name : movie.name,
             desc : movie.desc,
-            cast : movie.cast,
+            cast : castArr,
+            language : languageArr,
             releaseDate : movie.releaseDate,
             releaseStatus : movie.releaseStatus,
             genre : movie.genre,
             movieLength : movie.movieLength,
             rating : movie.rating,
-            posterImage : movie.posterImage,
+            posterImage : imagesUrl[0],
+            backImage : imagesUrl[1],
             videoTrailer : movie.videoTrailer
         });
         res.status(200).send({
